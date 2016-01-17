@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Dynamic;
+using Newtonsoft.Json;
 
 namespace Kilometer
 {
@@ -13,7 +14,15 @@ namespace Kilometer
         [JsonProperty("event_name")]
         public string Name { get; set; }
 
-        [JsonProperty("event_properties", NullValueHandling = NullValueHandling.Ignore)]
-        public dynamic Properties { get; set; }
+        [JsonProperty("event_properties")]
+        public object Properties { get; set; }
+
+        public KilometerEvent()
+        {
+            if (Properties == null)
+            {
+                Properties = new ExpandoObject();
+            }
+        }
     }
 }

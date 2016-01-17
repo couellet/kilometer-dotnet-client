@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Dynamic;
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using NodaTime;
 
 namespace Kilometer
 {
@@ -45,37 +45,55 @@ namespace Kilometer
 
         public async Task CreateUser(string userId, object userProperties)
         {
-            await SendEvent(new KilometerEvent
+            var eventResponse = await SendEvent(new KilometerEvent
             {
                 Name = "user_signup",
                 Type = "identified",
                 UserId = userId,
             });
 
-            await UpdateUser(userId, userProperties: userProperties);
+            AssertResponseIsValid(eventResponse);
+
+            await UpdateUser(userId, userProperties);
         }
 
-        public async Task UpdateUser(string userId, string status = "active", object userProperties = null)
+        public async Task UpdateUser(string userId, object userProperties)
         {
-            dynamic props = userProperties ?? new ExpandoObject();
-            props.status = status;
-
             var request = new HttpRequestMessage(HttpMethod.Put, string.Format("/users/{0}/properties", userId))
             {
-                Content = new ObjectContent(props.GetType(), props, new JsonMediaTypeFormatter())
+                Content = new ObjectContent(userProperties.GetType(), userProperties, new JsonMediaTypeFormatter())
             };
 
-            await HttpClient.SendAsync(request);
+            AppendTimestamp(request);
+
+            var response = await HttpClient.SendAsync(request);
+
+            AssertResponseIsValid(response);
+        }
+
+        private void AppendTimestamp(HttpRequestMessage request)
+        {
+            request.Headers.Add("Timestamp", SystemClock.Instance.Now.Ticks.ToString());
+        }
+
+        private void AssertResponseIsValid(HttpResponseMessage response)
+        {
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new KilometerException("Impossible to connect to kilometer.io", response);
+            }
         }
 
         public async Task CancelUser(string userId)
         {
-            await SendEvent(new KilometerEvent
+            var eventResponse = await SendEvent(new KilometerEvent
             {
                 UserId = userId,
                 Name = "user_cancel",
                 Type = "identified"
             });
+
+            AssertResponseIsValid(eventResponse);
 
             await UpdateUser(userId, userProperties: new
             {
@@ -86,7 +104,7 @@ namespace Kilometer
 
         public async Task BillUser(string userId, decimal amount)
         {
-            await SendEvent(new KilometerEvent
+            var eventResponse = await SendEvent(new KilometerEvent
             {
                 UserId = userId,
                 Name = "user_billed",
@@ -97,30 +115,36 @@ namespace Kilometer
                 }
             });
 
+            AssertResponseIsValid(eventResponse);
+
             var propertiesRequest = new HttpRequestMessage(HttpMethod.Post, string.Format(
                 "/users/{0}/properties/revenue/increase/{1}",
                 userId,
                 amount.ToString("0.00", CultureInfo.InvariantCulture)));
 
-            propertiesRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            AppendTimestamp(propertiesRequest);
 
-            await HttpClient.SendAsync(propertiesRequest);
+            var propertiesResponse = await HttpClient.SendAsync(propertiesRequest);
 
-            await UpdateUser(userId, userProperties: new
+            AssertResponseIsValid(propertiesResponse);
+
+            await UpdateUser(userId, new
             {
                 paying_user = "yes",
                 status = "active"
             });
         }
 
-        private async Task SendEvent(KilometerEvent evnt)
+        private async Task<HttpResponseMessage> SendEvent(KilometerEvent evnt)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "/events")
             {
                 Content = new ObjectContent<KilometerEvent>(evnt, new JsonMediaTypeFormatter())
             };
 
-            await HttpClient.SendAsync(request);
+            AppendTimestamp(request);
+
+            return await HttpClient.SendAsync(request);
         }
     }
 }
