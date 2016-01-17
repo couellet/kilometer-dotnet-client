@@ -2,6 +2,8 @@
 
 This project is intended to be a very lean .NET wrapper for [kilometer.io](https://kilometer.readme.io/docs/getting-started) API.
 
+[![Build status](https://ci.appveyor.com/api/projects/status/1rgbjsq2mchv0kq9?svg=true)](https://ci.appveyor.com/project/spektrum/kilometer-dotnet-client)
+
 ## Get started
 
 Start by getting a new `KilometerClient` instance and set your app ID using `SetAppId` method.

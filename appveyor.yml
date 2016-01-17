@@ -1,0 +1,86 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+# version format
+version: 0.1.{build}
+
+# branches to build
+branches:
+  only:
+    - master
+
+# Do not build on tags (GitHub only)
+skip_tags: true
+
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+init:
+  - git config --global core.autocrlf input
+
+cache:
+  - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
+
+# enable patching of AssemblyInfo.* files
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "0.1.{build}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+# build platform, i.e. x86, x64, Any CPU. This setting is optional.
+platform: Any CPU
+
+# build Configuration, i.e. Debug, Release, etc.
+configuration: Release
+
+build:
+  parallel: true                  # enable MSBuild parallel builds
+  project: src/kilometer-dotnet-client.sln      # path to Visual Studio solution or project
+  publish_nuget: true             # package projects with .nuspec files and push to artifacts
+  publish_nuget_symbols: true     # generate and publish NuGet symbol packages
+  include_nuget_references: true  # add -IncludeReferencedProjects option while packaging NuGet artifacts
+
+  # MSBuild verbosity level
+  verbosity: minimal
+
+#---------------------------------#
+#      artifacts configuration    #
+#---------------------------------#
+
+artifacts:
+  # pushing all *.nupkg files in directory
+  - path: out\*.nupkg
+
+#---------------------------------#
+#     deployment configuration    #
+#---------------------------------#
+
+deploy:
+    # Deploying to NuGet feed
+  - provider: NuGet
+    api_key:
+      secure: FYWX6NfjZIVw==
+    skip_symbols: false
+
+#---------------------------------#
+#         notifications           #
+#---------------------------------#
+
+notifications:
+
+  # Email
+  - provider: Email
+    to: 
+      - charles.ouellet@gmail.com
+    subject: 'Build {{status}}'                  # optional
+    message: "{{message}}, {{commitId}}, ..."    # optional
+    on_build_status_changed: true
