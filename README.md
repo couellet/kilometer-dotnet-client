@@ -6,6 +6,12 @@ This project is intended to be a very lean .NET wrapper for [kilometer.io](https
 
 ## Get started
 
+Install the package via the NuGet package manager console.
+
+```
+Install-Package Kilometer
+```
+
 Start by getting a new `KilometerClient` instance and set your app ID using `SetAppId` method.
 
 ```csharp
