@@ -2,7 +2,7 @@
 
 This project is intended to be a very lean .NET wrapper for [kilometer.io](https://kilometer.readme.io/docs/getting-started) API.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/1rgbjsq2mchv0kq9?svg=true)](https://ci.appveyor.com/project/spektrum/kilometer-dotnet-client)
+[![Build status](https://ci.appveyor.com/api/projects/status/1rgbjsq2mchv0kq9?svg=true)](https://ci.appveyor.com/project/spektrum/kilometer-dotnet-client) [![NuGet infos](https://img.shields.io/nuget/dt/Kilometer.svg)](https://www.nuget.org/packages/Kilometer/)
 
 ## Get started
 
