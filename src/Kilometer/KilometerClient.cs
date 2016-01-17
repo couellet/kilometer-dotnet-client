@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using NodaTime;
 
@@ -95,7 +94,7 @@ namespace Kilometer
 
             AssertResponseIsValid(eventResponse);
 
-            await UpdateUser(userId, userProperties: new
+            await UpdateUser(userId, new
             {
                 status = "Cancelled",
                 paying_user = "no"
