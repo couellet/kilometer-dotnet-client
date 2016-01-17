@@ -96,7 +96,7 @@ namespace Kilometer
 
             await UpdateUser(userId, new
             {
-                status = "Cancelled",
+                status = "cancelled",
                 paying_user = "no"
             });
         }
