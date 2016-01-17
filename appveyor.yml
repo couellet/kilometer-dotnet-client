@@ -13,7 +13,6 @@ branches:
 # Do not build on tags (GitHub only)
 skip_tags: true
 
-
 #---------------------------------#
 #    environment configuration    #
 #---------------------------------#
@@ -35,6 +34,11 @@ assembly_info:
 #---------------------------------#
 #       build configuration       #
 #---------------------------------#
+
+before_build:
+  - cd src/Kilometer
+  - nuget restore
+  - cd ../..
 
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
 platform: Any CPU
