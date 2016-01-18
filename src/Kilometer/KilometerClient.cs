@@ -88,7 +88,7 @@ namespace Kilometer
             var eventResponse = await SendEvent(new KilometerEvent
             {
                 UserId = userId,
-                Name = "user_cancel",
+                Name = "user_cancelled",
                 Type = "identified"
             });
 
