@@ -134,7 +134,37 @@ namespace Kilometer
             });
         }
 
-        private async Task<HttpResponseMessage> SendEvent(KilometerEvent evnt)
+        public async Task IncreasetUserProperty(string userId, string propertyName, decimal amount)
+        {
+            var propertiesRequest = new HttpRequestMessage(HttpMethod.Post, string.Format(
+                "/users/{0}/properties/{1}/increase/{2}",
+                userId,
+                propertyName,
+                amount.ToString("0.00", CultureInfo.InvariantCulture)));
+            
+            AppendTimestamp(propertiesRequest);
+
+            var propertiesResponse = await HttpClient.SendAsync(propertiesRequest);
+
+            AssertResponseIsValid(propertiesResponse);
+        }
+
+        public async Task DecreaseUserProperty(string userId, string propertyName, decimal amount)
+        {
+            var propertiesRequest = new HttpRequestMessage(HttpMethod.Post, string.Format(
+                "/users/{0}/properties/{1}/decrease/{2}",
+                userId,
+                propertyName,
+                amount.ToString("0.00", CultureInfo.InvariantCulture)));
+            
+            AppendTimestamp(propertiesRequest);
+
+            var propertiesResponse = await HttpClient.SendAsync(propertiesRequest);
+
+            AssertResponseIsValid(propertiesResponse);
+        }
+
+        public async Task<HttpResponseMessage> SendEvent(KilometerEvent evnt)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "/events")
             {
@@ -143,7 +173,11 @@ namespace Kilometer
 
             AppendTimestamp(request);
 
-            return await HttpClient.SendAsync(request);
+            var response =  await HttpClient.SendAsync(request);
+
+            AssertResponseIsValid(response);
+
+            return response;
         }
     }
 }
